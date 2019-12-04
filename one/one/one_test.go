@@ -7,5 +7,4 @@ func TestHello(t *testing.T) {
 	if total := SumFuelRequirements(ints); total != 0 {
 		t.Errorf("Total = %q, wanted %q", total, 0)
 	}
-
 }
