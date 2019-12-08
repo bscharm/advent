@@ -11,7 +11,7 @@ import (
 )
 
 func SolveOne() {
-	f, err := os.Open("three/input.txt")
+	f, err := os.Open("2/input.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
