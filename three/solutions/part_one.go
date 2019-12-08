@@ -1,4 +1,4 @@
-package main
+package solutions
 
 import (
 	"bufio"
@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func main() {
+func SolveOne() {
 	f, err := os.Open("three/input.txt")
 	if err != nil {
 		log.Fatal(err)
@@ -30,13 +30,12 @@ func main() {
 	crosses := wireOne.findCrosses(wireTwo)
 	shortest := findShortest(crosses)
 	fmt.Println(shortest)
-
 }
 
 type wire struct {
 	instructions []string
 	currentPoint point
-	visited      map[point]bool
+	visited      map[point]int
 }
 
 type point struct {
@@ -45,12 +44,13 @@ type point struct {
 }
 
 func (w wire) resolve() {
+	step := 0
 	for _, instruction := range w.instructions {
-		w.followInstruction(instruction)
+		step = w.followInstruction(instruction, step)
 	}
 }
 
-func (w *wire) followInstruction(instruction string) {
+func (w *wire) followInstruction(instruction string, step int) int {
 	direction := instruction[:1]
 	distance, _ := strconv.Atoi(instruction[1:])
 	currentPoint := w.currentPoint
@@ -58,34 +58,68 @@ func (w *wire) followInstruction(instruction string) {
 	switch direction {
 	case "R":
 		for i := 0; i < distance; i++ {
+			step = step + 1
 			newX := w.currentPoint.x + 1
 			newPoint := point{newX, currentPoint.y}
-			w.visited[newPoint] = true
+			val, ok := w.visited[newPoint]
+			if ok {
+				if step < val {
+					w.visited[newPoint] = step
+				}
+			} else {
+				w.visited[newPoint] = step
+			}
 			w.currentPoint = newPoint
 		}
 	case "L":
 		for i := 0; i < distance; i++ {
+			step = step + 1
 			newX := w.currentPoint.x - 1
 			newPoint := point{newX, currentPoint.y}
-			w.visited[newPoint] = true
+			val, ok := w.visited[newPoint]
+			if ok {
+				if step < val {
+					w.visited[newPoint] = step
+				}
+			} else {
+				w.visited[newPoint] = step
+			}
 			w.currentPoint = newPoint
 		}
 	case "U":
 		for i := 0; i < distance; i++ {
+			step = step + 1
 			newY := w.currentPoint.y + 1
 			newPoint := point{currentPoint.x, newY}
-			w.visited[newPoint] = true
+			val, ok := w.visited[newPoint]
+			if ok {
+				if step < val {
+					w.visited[newPoint] = step
+				}
+			} else {
+				w.visited[newPoint] = step
+			}
 			w.currentPoint = newPoint
 		}
 	case "D":
 		for i := 0; i < distance; i++ {
+			step = step + 1
 			newY := w.currentPoint.y - 1
 			newPoint := point{currentPoint.x, newY}
-			w.visited[newPoint] = true
+			val, ok := w.visited[newPoint]
+			if ok {
+				if step < val {
+					w.visited[newPoint] = step
+				}
+			} else {
+				w.visited[newPoint] = step
+			}
 			w.currentPoint = newPoint
 		}
 
 	}
+
+	return step
 }
 
 func findShortest(points []point) int {
@@ -114,7 +148,7 @@ func (w wire) findCrosses(ow wire) []point {
 			continue
 		}
 
-		if ow.visited[point] {
+		if _, ok := ow.visited[point]; ok {
 			crosses = append(crosses, point)
 		}
 	}
@@ -124,8 +158,8 @@ func (w wire) findCrosses(ow wire) []point {
 func newWire(s string) wire {
 	instructions := strings.Split(s, ",")
 	startingPoint := point{0, 0}
-	visited := make(map[point]bool)
-	visited[startingPoint] = true
+	visited := make(map[point]int)
+	visited[startingPoint] = 0
 	return wire{
 		instructions,
 		startingPoint,
